@@ -1,204 +1,208 @@
-import { ScrollView, Text, View} from "react-native"
-import React from "react"
+import { ScrollView, Text, View } from "react-native";
+import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
+import { FontAwesome } from "@expo/vector-icons";
 
 import BrowseCard from "../atoms/BrowseCard";
-import Screen from "../atoms/Screen"
+import Screen from "../atoms/Screen";
 import TextInput from "../atoms/TextInput";
 
-import * as ROUTES from "../../components/constants/routes"
-
-
+import { offerList, browseList } from "../data/appData";
+import { User } from "../../userProvider";
+import IconTitle from "../atoms/IconTitle";
+import SearchInput from "../atoms/SearchInput";
 
 const Container = styled(Screen)``;
 
 const Wrapper = styled.View`
-    padding: 0 1px;
-`
+  padding: 0 5px;
+`;
 
-const Search = styled(TextInput)``;
+const Search = styled(SearchInput)``;
 
 const Title = styled.Text`
-font-style: normal;
-font-weight: 500;
-font-size: 24px;
-line-height: 36px;
-color: #000000;
-margin-bottom: 15px;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 36px;
+  color: #000000;
+  margin-bottom: 15px;
 `;
 
 const InnerContainer = styled.View`
-width: 100%;
-display: flex;
-flex-direction: row;
-justify-content: space-between;
-flex-wrap: wrap;
-margin-bottom: 27px;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin-bottom: 27px;
 `;
 
+const SearchContainer = styled.View`
+  width: 100%;
+  margin-bottom: 27px;
+`;
 
+const SearchTitle = styled.Text`
+  font-style: normal;
+  font-weight: 400;
+  line-height: 20px;
+  color: #6b6b6b;
+  margin-bottom: 21px;
+`;
 
+function Browse({ navigation }) {
+  const [offers, setOffers] = useState(offerList);
+  const [browse, setBrowse] = useState(browseList);
+  const [search, setSearch] = useState(false);
 
+  const [value, setValue] = useState("");
 
-browseList = [
-    {
-        id: 0,
-        title: "Mexican",
-        imgUrl: require("../../../assets/images/browse/CategoryImage-6.png"),
+  const [recents, setRecents] = useState([]);
 
-    },  {
-        id: 1,
-        title: "Fast Food",
-        imgUrl: require("../../../assets/images/browse/CategoryImage-7.png"),
+  const user = User();
 
-    },  {
-        id: 2,
-        title: "Healthy",
-        imgUrl: require("../../../assets/images/browse/CategoryImage-8.png"),
+  const handleBlur = () => {
+    setRecents([...recents, value]);
+  };
 
-    },  {
-        id: 3,
-        title: "Pizza",
-        imgUrl: require("../../../assets/images/browse/CategoryImage-9.png"),
+  const onTextChange = (text) => {
+    setValue(text);
+    if (value === "") {
+      setSearch(false);
+    }
+  };
 
-    },  {
-        id: 4,
-        title: "Asian",
-        imgUrl: require("../../../assets/images/browse/CategoryImage-10.png"),
-
-    },  {
-        id: 5,
-        title: "Bakery",
-        imgUrl: require("../../../assets/images/browse/CategoryImage-11.png"),
-
-    },  {
-        id: 6,
-        title: "Sandwich",
-        imgUrl: require("../../../assets/images/browse/CategoryImage-12.png"),
-
-    },  {
-        id: 7,
-        title: "Sushi",
-        imgUrl: require("../../../assets/images/browse/CategoryImage-13.png"),
-
-    },  {
-        id: 8,
-        title: "Korean",
-        imgUrl: require("../../../assets/images/browse/CategoryImage-14.png"),
-
-    },  {
-        id: 9,
-        title: "Vietnamese",
-        imgUrl: require("../../../assets/images/browse/CategoryImage-15.png"),
-
-    },  {
-        id: 10,
-        title: "Vegan",
-        imgUrl: require("../../../assets/images/browse/CategoryImage-16.png"),
-
-    },
-    {
-        id: 11,
-        title: " Bubble Tea ",
-        imgUrl: require("../../../assets/images/browse/CategoryImage-17.png"),
-
-    },
-    {
-        id: 12,
-        title: " Juice & Smoothies ",
-        imgUrl: require("../../../assets/images/browse/CategoryImage-18.png"),
-
-    }, 
-]
-
-
-function Browse ({ navigation,}) {
-   
-    const offerList = [
-        {
-            id: 0,
-            title: "Breakfast  brunch",
-            imgUrl: require("../../../assets/images/browse/CategoryImage.png"),
-    
-        },
-        {
-            id: 1,
-            title: "Cofee & Tea",
-            imgUrl: require("../../../assets/images/browse/CategoryImage-1.png")
-    
-        },  {
-            id: 2,
-            title: "Deals",
-            imgUrl: require("../../../assets/images/browse/CategoryImage-2.png"),
-            handlePress: () => navigation.navigate(ROUTES.DEALS_SCREEN, { num: 1 })
-    
-        },  {
-            id: 3,
-            title: "Restautant Rewards",
-            imgUrl: require("../../../assets/images/browse/CategoryImage-3.png"),
-            handlePress: () => navigation.navigate(ROUTES.DEALS_SCREEN, { num: 2 })
-    
-        },  {
-            id: 4,
-            title: "Best overall",
-            imgUrl: require("../../../assets/images/browse/CategoryImage-4.png"),
-    
-        },  {
-            id: 5,
-            title: "Shipped free",
-            imgUrl: require("../../../assets/images/browse/CategoryImage-5.png"),
-    
-        }, 
-    ];
-    
-
-    return (
-        <Container>
-        
-        <ScrollView 
+  return (
+    <Container>
+      <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
-            paddingBottom: 70,
-            paddingTop: 20,
+          paddingBottom: 70,
+          paddingTop: 20,
+          paddingHorizontal: 10,
         }}
-        >
-            <Wrapper>
+      >
+        <Search
+          value={value}
+          onChangeText={(text) => onTextChange(text)}
+          onFocus={() => setSearch(true)}
+          placeholder="placeholder"
+          onBlur={handleBlur}
+        />
+        {search ? (
+          <Wrapper>
+            {recents.length !== 0 && (
+              <SearchContainer>
+                <SearchTitle>Recent searches</SearchTitle>
+                {recents.map((item, idx) => {
+                  return (
+                    <IconTitle
+                      key={idx}
+                      title={item.title}
+                      icon={
+                        <FontAwesome name="search" size={20} color="black" />
+                      }
+                      onPress={() => console.log(item.title)}
+                    />
+                  );
+                })}
+              </SearchContainer>
+            )}
+            <SearchContainer>
+              <SearchTitle>Top Categories</SearchTitle>
+              {browse.map((item) => {
+                return (
+                  <IconTitle
+                    key={item.id}
+                    title={item.title}
+                    icon={<FontAwesome name="search" size={20} color="black" />}
+                    onPress={() =>
+                      navigation.navigate(item.routeName, { num: item.type })
+                    }
+                  />
+                );
+              })}
+            </SearchContainer>
+            {browse.map((item) => {
+              return (
+                <IconTitle
+                  key={item.id}
+                  title={item.title}
+                  onPress={() =>
+                    navigation.navigate(item.routeName, { num: item.type })
+                  }
+                />
+              );
+            })}
+          </Wrapper>
+        ) : (
+          <Wrapper>
+            {user && <Text>{user.userName}</Text>}
 
-        <Search />
-
-            <Title style={{ marginTop: 15 }} >Top Categories</Title>
+            <Title style={{ marginTop: 15 }}>Top Categories</Title>
             <InnerContainer>
-            {offerList.map((item) => {
-               return (
-               <BrowseCard 
-                key={item.id} 
-                title={item.title} 
-                imgUrl={item.imgUrl}
-                onPress={item.handlePress}
+              {offers.map((item) => {
+                return (
+                  <BrowseCard
+                    key={item.id}
+                    title={item.title}
+                    imgUrl={item.imgUrl}
+                    onPress={() => console.log(item.title)}
+                  />
+                );
+              })}
+            </InnerContainer>
+            <Title>All Categories</Title>
+            <InnerContainer>
+              {browse.map((item) => {
+                return (
+                  <BrowseCard
+                    key={item.id}
+                    title={item.title}
+                    imgUrl={item.imgUrl}
+                    onPress={() => console.log(item.title)}
+                  />
+                );
+              })}
+            </InnerContainer>
+          </Wrapper>
+        )}
+        <Wrapper>
+          {user && <Text>{user.userName}</Text>}
+
+          <Title style={{ marginTop: 15 }}>Top Categories</Title>
+          <InnerContainer>
+            {offers.map((item) => {
+              return (
+                <BrowseCard
+                  key={item.id}
+                  title={item.title}
+                  imgUrl={item.imgUrl}
+                  onPress={() =>
+                    navigation.navigate(item.routeName, { num: item.type })
+                  }
                 />
-               )
+              );
             })}
-           </InnerContainer>
-           <Title>All Categories</Title>
-           <InnerContainer>
-            {browseList.map((item) => {
-               return (
-               <BrowseCard 
-                key={item.id} 
-                title={item.title} 
-                imgUrl={item.imgUrl}
-                onPress={() => console.log(item.title)}  
+          </InnerContainer>
+          <Title>All Categories</Title>
+          <InnerContainer>
+            {browse.map((item) => {
+              return (
+                <BrowseCard
+                  key={item.id}
+                  title={item.title}
+                  imgUrl={item.imgUrl}
+                  onPress={() => console.log(item.title)}
                 />
-               )
+              );
             })}
-           </InnerContainer>
-           </Wrapper>
-        </ScrollView>
-        </Container>
-    )
+          </InnerContainer>
+        </Wrapper>
+      </ScrollView>
+    </Container>
+  );
 }
 
-    
 export default Browse;
-
-

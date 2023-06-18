@@ -2,8 +2,9 @@ import AuthNavigator from "./navigators/AuthNavigator";
 import "react-native-gesture-handler";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { PaperProvider } from "react-native-paper";
+import { UserProvider } from "./src/userProvider";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -26,8 +27,10 @@ export default function App() {
   }
 
   return (
-    <PaperProvider>
-      <AuthNavigator />
-    </PaperProvider>
+    <UserProvider>
+      <PaperProvider>
+        <AuthNavigator />
+      </PaperProvider>
+    </UserProvider>
   );
 }

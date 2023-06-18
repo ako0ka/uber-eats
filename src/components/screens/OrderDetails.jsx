@@ -1,13 +1,18 @@
-import React, { useState } from "react";
+import React, { useContext, useRef, useState } from "react";
 import styled from "styled-components";
+import { ScrollView, View } from "react-native";
+import { Portal } from "react-native-paper";
+
 import Screen from "../atoms/Screen";
 import Text from "../atoms/Text";
 import PromotionWidget from "../moleculs/PromotionWidget";
-import { ScrollView, View } from "react-native";
 import RadioLabel from "../moleculs/RadioLabel";
 import Check from "../moleculs/Check";
-import { Checkbox } from "react-native-paper";
 import Counter from "../atoms/Counter";
+import BottomSheet from "../atoms/BottomSheet";
+import SectionSeparator from "../atoms/SectionSeparato";
+import * as ROUTES from "../../components/constants/routes";
+import CtgrBtn from "../atoms/CtgrBtn";
 
 const sauces = [
   {
@@ -36,6 +41,14 @@ const sauces = [
     label: "Bufallo Sauce",
   },
 ];
+
+// const sideSauce = [
+//   {
+//     id: 5,
+//     value: 1,
+//     label: "Sauce on the side",
+//   },
+// ];
 
 const sizes = [
   {
@@ -118,23 +131,23 @@ const addons = [
 
 const frequent = [
   {
-    id: 14,
+    id: 17,
     isChecked: false,
-    label: "Soda",
+    text: "Soda",
     price: 1.69,
     subTitle: "Select options",
   },
   {
-    id: 15,
+    id: 18,
     isChecked: false,
-    label: "Cheeze Pizza",
+    text: "Cheeze Pizza",
     price: 12.99,
     subTitle: "Select options",
   },
   {
-    id: 16,
+    id: 19,
     isChecked: false,
-    label: "Amigos Hawaiana Pizza",
+    text: "Amigos Hawaiana Pizza",
     price: 16.99,
     subTitle: "Select options",
   },
@@ -143,6 +156,10 @@ const frequent = [
 const Container = styled(Screen)``;
 
 const RestaurantTitle = styled(Text)``;
+
+const Section = styled(SectionSeparator)`
+  background: #f6f6f6;
+`;
 
 const ItemPrice = styled(Text)`
   margin: 8px 0;
@@ -199,25 +216,76 @@ const FrequentContainer = styled.View`
   margin-bottom: 24px;
 `;
 
+const subTitle = styled(Text)``;
+
 const CounterContainer = styled.View`
   display: flex;
   flex-direction: row;
+  margin-top: 24px;
+  margin-bottom: 12px;
+`;
+
+const AddBtn = styled.Pressable`
+  align-items: center;
+  background-color: #000000;
+  flex-direction: row;
+  justify-content: center;
+  padding: 20px;
+  gap: 10px;
+  margin: 15px;
   margin-bottom: 100px;
 `;
 
-export default function OrderDetails({ route }) {
-  const { restaurantName, price, desc } = route.params;
+const AddBtnTxt = styled(Text)`
+  color: white;
+`;
+
+const LineTxt = styled(Text)`
+  color: white;
+`;
+
+// bottomsheet
+
+const BottomSheetView = styled.View``;
+
+const TextWrapper = styled.View`
+  display: flex;
+  align-items: center;
+`;
+
+const RestTitle = styled(Text)`
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  justify-content: center;
+  padding: 15px;
+  font-size: 24px;
+`;
+
+const SaveText = styled(Text)`
+  margin-top: 1px;
+  color: green;
+`;
+
+const GroupIcon = require("../../../assets/images/Group.png");
+
+export default function OrderDetails({ navigation, route }) {
+  const { price, desc, restaurantName } = route.params;
   let num = parseInt(price);
+  const addedItems = useRef();
+
+  const [count, setCount] = useState(1);
+  const [sum, setSum] = useState(0);
 
   const [sizePrice, setSizePrice] = useState(num);
   const [crustPrice, setCrustPrice] = useState(sizePrice);
   const [addonsPrice, setAddonsPrice] = useState(crustPrice);
   const [frequentPrice, setFrequentPrice] = useState(addonsPrice);
-
   const [sizeArr, setSizeArr] = useState(sizes);
+  const [totalPrice, setTotalPrice] = useState(num);
 
   const handlePress = (id, amount, arr, callback) => {
-    callback(num + (amount ? amount : 0));
+    let newPrice = num + (amount ? amount : 0);
 
     arr.forEach((item) => {
       if (item.id !== id) {
@@ -226,19 +294,17 @@ export default function OrderDetails({ route }) {
         item.isChecked = true;
       }
     });
-  };
 
-  const handleCheckBox = (item) => {
-    let num;
-    item.isChecked;
+    callback(newPrice);
+    setTotalPrice(newPrice);
   };
 
   return (
     <Container>
       <ScrollView>
-        <RestaurantTitle size={24}>{restaurantName}</RestaurantTitle>
+        {/* <RestaurantTitle size={24}>{restaurantName}</RestaurantTitle>
         <ItemPrice size={22}>${price}</ItemPrice>
-        <ItemDesc>{desc}</ItemDesc>
+        <ItemDesc>{desc}</ItemDesc> */}
 
         <Promotion />
 
@@ -260,12 +326,15 @@ export default function OrderDetails({ route }) {
             return (
               <RadioLabel
                 key={item.id}
-                // onPress={() => handlePress(item.label, sauces) }
                 label={item.label}
+                onPress={() => handlePress(item.id, sauces)}
+                checked={item.isChecked}
               />
             );
           })}
         </SauceContainer>
+
+        <Section />
 
         <SideSouce>
           <View>
@@ -276,7 +345,7 @@ export default function OrderDetails({ route }) {
           </View>
         </SideSouce>
         <SouceSide>
-          <Checkbox />
+          <Check />
           <Text>Sauce on the side</Text>
         </SouceSide>
 
@@ -311,6 +380,8 @@ export default function OrderDetails({ route }) {
           <Text>{sizePrice}</Text>
         </PizzaContainer>
 
+        <Section />
+
         <CrustContainer>
           <SauceTitleWrapper>
             <SauceTitle size={18}>Choose your crust</SauceTitle>
@@ -332,14 +403,20 @@ export default function OrderDetails({ route }) {
                 key={item.id}
                 label={item.label}
                 price={item.price}
-                text={item.text}
+                // text={item.text}
+                onPress={() =>
+                  handlePress(item.id, item.price, crust, setSizePrice)
+                }
+                checked={item.isChecked}
               />
             );
           })}
           <Text>{crustPrice}</Text>
         </CrustContainer>
 
-        <Text>Choose your add-ons</Text>
+        <Section />
+
+        <Text size={18}>Choose your add-ons</Text>
 
         <Text>Choose up to 3</Text>
 
@@ -359,9 +436,10 @@ export default function OrderDetails({ route }) {
             return (
               <Check
                 key={item.id}
+                text={item.text}
+                price={item.price}
                 style={{ margin: 5 }}
                 value={item.isChecked}
-                onCalueChange={() => handleCheckBox(item)}
                 onPress={() =>
                   handlePress(item.id, item.price, addons, setAddonsPrice)
                 }
@@ -372,26 +450,18 @@ export default function OrderDetails({ route }) {
           <Text>{addonsPrice}</Text>
         </AddOnsContainer>
 
+        <Section />
+
         <FrequentContainer>
           <SauceTitleWrapper>
             <SauceTitle size={18}>Frequently brought together</SauceTitle>
-            <View
-              style={{
-                backgroundColor: "#EEEEEE",
-                paddingHorizontal: 5,
-                paddingVertical: 3,
-                borderRadius: 10,
-              }}
-            >
-              <Text>Required</Text>
-            </View>
           </SauceTitleWrapper>
 
           {frequent.map((item) => {
             return (
               <Check
                 key={item.id}
-                label={item.label}
+                text={item.text}
                 price={item.price}
                 subtitle={item.subTitle}
                 onPress={() =>
@@ -404,10 +474,52 @@ export default function OrderDetails({ route }) {
           <Text>{frequentPrice}</Text>
         </FrequentContainer>
 
+        <Section />
+
         <CounterContainer>
           <Counter />
         </CounterContainer>
+
+        <Section />
+
+        <AddBtn onPress={() => addedItems.current.open()}>
+          <AddBtnTxt>
+            Add {count} to basket • US${sum.toFixed(2)}
+          </AddBtnTxt>
+
+          <LineTxt>US$21.00</LineTxt>
+        </AddBtn>
       </ScrollView>
+      <Portal>
+        <BottomSheet
+          bottomSheetRef={addedItems}
+          modalHeight={700}
+          onPress={() => {
+            current.close();
+          }}
+        >
+          <TextWrapper>
+            <RestTitle>Taco Bell(2255 Telegraph Avenue)</RestTitle>
+            <SaveText>You're saving US$25</SaveText>
+            <Section />
+          </TextWrapper>
+          {/* <AddBtn
+            title="Go to checkout"
+            onPress={() => {
+              navigation.navigate(ROUTES.DELIVERY_DETAILS_SCREEN);
+            }}
+          /> */}
+          {/* <GroupIcon /> */}
+          <CtgrBtn
+            title="Go to checkout"
+            onPress={() => {
+              navigation.navigate(ROUTES.DELIVERY_DETAILS_SCREEN);
+            }}
+          />
+
+          <Section />
+        </BottomSheet>
+      </Portal>
     </Container>
   );
 }
