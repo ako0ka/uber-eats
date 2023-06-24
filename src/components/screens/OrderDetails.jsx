@@ -1,7 +1,9 @@
-import React, { useContext, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { ScrollView, View } from "react-native";
 import { Portal } from "react-native-paper";
+
+import * as ROUTES from "../../components/constants/routes";
 
 import Screen from "../atoms/Screen";
 import Text from "../atoms/Text";
@@ -11,7 +13,9 @@ import Check from "../moleculs/Check";
 import Counter from "../atoms/Counter";
 import BottomSheet from "../atoms/BottomSheet";
 import SectionSeparator from "../atoms/SectionSeparato";
-import * as ROUTES from "../../components/constants/routes";
+import Button from "../atoms/Button";
+import { Updateshop } from "../../userProvider";
+import AppSnackBar from "../moleculs/SnackBar";
 import CtgrBtn from "../atoms/CtgrBtn";
 
 const sauces = [
@@ -22,22 +26,22 @@ const sauces = [
   },
   {
     id: 1,
-    value: 2,
+    value: 1,
     label: "Galicky Sauce",
   },
   {
     id: 2,
-    value: 3,
+    value: 1,
     label: "Pesto Sauce",
   },
   {
     id: 3,
-    value: 4,
+    value: 1,
     label: "BBQ Sauce",
   },
   {
     id: 4,
-    value: 5,
+    value: 1,
     label: "Bufallo Sauce",
   },
 ];
@@ -52,36 +56,36 @@ const sauces = [
 
 const sizes = [
   {
-    id: 5,
+    id: 0,
     isChecked: false,
     label: "Small 10(6 Slices)",
   },
   {
-    id: 6,
+    id: 1,
     isChecked: false,
     label: "Medium 12(8 slices)",
     price: 4,
   },
   {
-    id: 7,
+    id: 2,
     isChecked: false,
     label: "Large 14(8 Slices)",
     price: 10,
   },
   {
-    id: 8,
+    id: 3,
     isChecked: false,
     label: "Extra large 16(12 Slices)",
     price: 15,
   },
   {
-    id: 9,
+    id: 4,
     isChecked: false,
     label: "Super 20(12 Slices)",
     price: 18,
   },
   {
-    id: 10,
+    id: 5,
     isChecked: false,
     label: "24",
     price: 25,
@@ -90,18 +94,18 @@ const sizes = [
 
 const crust = [
   {
-    id: 11,
+    id: 0,
     isChecked: false,
     label: "Regular crust",
   },
   {
-    id: 12,
+    id: 1,
     isChecked: false,
     label: "Corn Skinny Crust",
     price: 4,
   },
   {
-    id: 13,
+    id: 2,
     isChecked: false,
     label: "Thick Pan Crust",
     price: 10,
@@ -110,19 +114,19 @@ const crust = [
 
 const addons = [
   {
-    id: 14,
+    id: 0,
     isChecked: false,
     text: "1 Side of Ranch Dressing",
     price: 0.5,
   },
   {
-    id: 15,
+    id: 1,
     isChecked: false,
     text: "2 Side of Ranch Dressing",
     price: 1.0,
   },
   {
-    id: 16,
+    id: 2,
     isChecked: false,
     text: "Side of marina sauce",
     price: 0.69,
@@ -131,21 +135,21 @@ const addons = [
 
 const frequent = [
   {
-    id: 17,
+    id: 0,
     isChecked: false,
     text: "Soda",
     price: 1.69,
     subTitle: "Select options",
   },
   {
-    id: 18,
+    id: 1,
     isChecked: false,
     text: "Cheeze Pizza",
     price: 12.99,
     subTitle: "Select options",
   },
   {
-    id: 19,
+    id: 2,
     isChecked: false,
     text: "Amigos Hawaiana Pizza",
     price: 16.99,
@@ -154,6 +158,11 @@ const frequent = [
 ];
 
 const Container = styled(Screen)``;
+
+const InnerContainer = styled.View`
+  flex-grow: 1;
+  padding-bottom: 120px;
+`;
 
 const RestaurantTitle = styled(Text)``;
 
@@ -179,6 +188,14 @@ const SauceContainer = styled.View`
 const SauceTitle = styled(Text)``;
 
 const SauceTitleWrapper = styled.View`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 25px;
+`;
+
+const SizeEwapper = styled.View`
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -267,25 +284,41 @@ const SaveText = styled(Text)`
   color: green;
 `;
 
+const SubmitBtn = styled(Button)``;
+
 const GroupIcon = require("../../../assets/images/Group.png");
 
 export default function OrderDetails({ navigation, route }) {
-  const { price, desc, restaurantName } = route.params;
+  const { price, desc, restaurantName, title } = route.params;
+  const updaetShop = Updateshop();
+
+  const [visible, setVisible] = useState(false);
+
+  const [isChecked, setIsChecked] = useState(false);
+
+  const bottomSheetRef = useRef();
+
   let num = parseInt(price);
-  const addedItems = useRef();
 
   const [count, setCount] = useState(1);
   const [sum, setSum] = useState(0);
+
+  const [total, setTotal] = useState(num);
 
   const [sizePrice, setSizePrice] = useState(num);
   const [crustPrice, setCrustPrice] = useState(sizePrice);
   const [addonsPrice, setAddonsPrice] = useState(crustPrice);
   const [frequentPrice, setFrequentPrice] = useState(addonsPrice);
-  const [sizeArr, setSizeArr] = useState(sizes);
-  const [totalPrice, setTotalPrice] = useState(num);
+  const addedItems = useRef();
 
-  const handlePress = (id, amount, arr, callback) => {
-    let newPrice = num + (amount ? amount : 0);
+  const itemToBasket = {
+    title: title,
+    price: total,
+    desc: desc,
+  };
+
+  const handleRadioButton = (id, amount, arr, callback) => {
+    if (amount) callback(num + amount);
 
     arr.forEach((item) => {
       if (item.id !== id) {
@@ -295,220 +328,238 @@ export default function OrderDetails({ navigation, route }) {
       }
     });
 
-    callback(newPrice);
-    setTotalPrice(newPrice);
+    // callback(newPrice);
+    // setTotalPrice(newPrice);
   };
+
+  const handleCheck = (item) => {
+    let num;
+    num = item.price;
+    if (item.isChecked) {
+      setTotal((prev) => prev + num);
+    } else {
+      setTotal((item) => prev - num);
+    }
+  };
+
+  const handleSubmit = () => {
+    updaetShop(itemToBasket);
+    setVisible(true);
+    navigation.navigate(ROUTES.HOME_SCREEN);
+  };
+  useEffect(() => {
+    console.log(bottomSheetRef);
+  }, []);
 
   return (
     <Container>
-      <ScrollView>
-        {/* <RestaurantTitle size={24}>{restaurantName}</RestaurantTitle>
-        <ItemPrice size={22}>${price}</ItemPrice>
-        <ItemDesc>{desc}</ItemDesc> */}
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 22 }}>
+        <InnerContainer>
+          <RestaurantTitle size={24}>{restaurantName}</RestaurantTitle>
+          <ItemPrice size={22}>${price}</ItemPrice>
+          <ItemDesc>{desc}</ItemDesc>
 
-        <Promotion />
+          <Promotion />
 
-        <SauceContainer>
-          <SauceTitleWrapper>
-            <SauceTitle size={18}>Choose your sauce</SauceTitle>
-            <View
-              style={{
-                backgroundColor: "#EEEEEE",
-                paddingHorizontal: 5,
-                paddingVertical: 3,
-                borderRadius: 10,
-              }}
-            >
-              <Text>Required</Text>
+          <SauceContainer>
+            <SauceTitleWrapper>
+              <SauceTitle size={18}>Choose your sauce</SauceTitle>
+              <View
+                style={{
+                  backgroundColor: "#EEEEEE",
+                  paddingHorizontal: 5,
+                  paddingVertical: 3,
+                  borderRadius: 10,
+                }}
+              >
+                <Text>Required</Text>
+              </View>
+            </SauceTitleWrapper>
+            {sauces.map((item) => {
+              return (
+                <RadioLabel
+                  key={item.id}
+                  label={item.label}
+                  checked={item.isChecked}
+                />
+              );
+            })}
+          </SauceContainer>
+
+          <Section />
+
+          <SideSouce>
+            <View>
+              <Text size={18}>Get your sauce on the side</Text>
+              <Text size={14} style={{ color: "gray" }}>
+                Choose up to 1
+              </Text>
             </View>
-          </SauceTitleWrapper>
-          {sauces.map((item) => {
-            return (
-              <RadioLabel
-                key={item.id}
-                label={item.label}
-                onPress={() => handlePress(item.id, sauces)}
-                checked={item.isChecked}
-              />
-            );
-          })}
-        </SauceContainer>
+          </SideSouce>
+          <SouceSide>
+            <Check />
+            <Text>Sauce on the side</Text>
+          </SouceSide>
 
-        <Section />
+          <PizzaContainer>
+            <SauceTitleWrapper>
+              <SauceTitle size={18}>Choose your size</SauceTitle>
+              <View
+                style={{
+                  backgroundColor: "#EEEEEE",
+                  paddingHorizontal: 5,
+                  paddingVertical: 3,
+                  borderRadius: 10,
+                }}
+              >
+                <Text>Required</Text>
+              </View>
+            </SauceTitleWrapper>
 
-        <SideSouce>
-          <View>
-            <Text size={18}>Get your sauce on the side</Text>
-            <Text size={14} style={{ color: "gray" }}>
-              Choose up to 1
-            </Text>
-          </View>
-        </SideSouce>
-        <SouceSide>
-          <Check />
-          <Text>Sauce on the side</Text>
-        </SouceSide>
+            {sizes.map((item) => {
+              return (
+                <RadioLabel
+                  key={item.id}
+                  label={item.label}
+                  price={item.price}
+                  onPress={() =>
+                    handleRadioButton(item.id, item.price, sizes, setSizePrice)
+                  }
+                  checked={item.isChecked}
+                />
+              );
+            })}
+            <Text>{sizePrice}</Text>
+          </PizzaContainer>
 
-        <PizzaContainer>
-          <SauceTitleWrapper>
-            <SauceTitle size={18}>Choose your size</SauceTitle>
-            <View
-              style={{
-                backgroundColor: "#EEEEEE",
-                paddingHorizontal: 5,
-                paddingVertical: 3,
-                borderRadius: 10,
-              }}
-            >
-              <Text>Required</Text>
-            </View>
-          </SauceTitleWrapper>
+          <Section />
 
-          {sizeArr.map((item) => {
-            return (
-              <RadioLabel
-                key={item.id}
-                label={item.label}
-                price={item.price}
-                onPress={() =>
-                  handlePress(item.id, item.price, sizes, setSizePrice)
-                }
-                checked={item.isChecked}
-              />
-            );
-          })}
-          <Text>{sizePrice}</Text>
-        </PizzaContainer>
+          <CrustContainer>
+            <SauceTitleWrapper>
+              <SauceTitle size={18}>Choose your crust</SauceTitle>
+              <View
+                style={{
+                  backgroundColor: "#EEEEEE",
+                  paddingHorizontal: 5,
+                  paddingVertical: 3,
+                  borderRadius: 10,
+                }}
+              >
+                <Text>Required</Text>
+              </View>
+            </SauceTitleWrapper>
 
-        <Section />
+            {crust.map((item) => {
+              return (
+                <RadioLabel
+                  key={item.id}
+                  label={item.label}
+                  price={item.price}
+                  onPress={() =>
+                    handleRadioButton(item.id, item.price, crust, setCrustPrice)
+                  }
+                  checked={item.isChecked}
+                />
+              );
+            })}
+            <Text>{crustPrice}</Text>
+          </CrustContainer>
 
-        <CrustContainer>
-          <SauceTitleWrapper>
-            <SauceTitle size={18}>Choose your crust</SauceTitle>
-            <View
-              style={{
-                backgroundColor: "#EEEEEE",
-                paddingHorizontal: 5,
-                paddingVertical: 3,
-                borderRadius: 10,
-              }}
-            >
-              <Text>Required</Text>
-            </View>
-          </SauceTitleWrapper>
+          <Section />
 
-          {crust.map((item) => {
-            return (
-              <RadioLabel
-                key={item.id}
-                label={item.label}
-                price={item.price}
-                // text={item.text}
-                onPress={() =>
-                  handlePress(item.id, item.price, crust, setSizePrice)
-                }
-                checked={item.isChecked}
-              />
-            );
-          })}
-          <Text>{crustPrice}</Text>
-        </CrustContainer>
+          <Text size={18}>Choose your add-ons</Text>
 
-        <Section />
+          <Text>Choose up to 3</Text>
 
-        <Text size={18}>Choose your add-ons</Text>
+          <AddOnsContainer>
+            <SauceTitleWrapper>
+              <View
+                style={{
+                  backgroundColor: "#EEEEEE",
+                  paddingHorizontal: 5,
+                  paddingVertical: 3,
+                  borderRadius: 10,
+                }}
+              ></View>
+            </SauceTitleWrapper>
 
-        <Text>Choose up to 3</Text>
+            {addons.map((item) => {
+              return (
+                <Check
+                  key={item.id}
+                  text={item.text}
+                  price={item.price}
+                  style={{ margin: 5 }}
+                  value={item.isChecked}
+                  onPress={() =>
+                    handleCheck(item.id, item.price, addons, setAddonsPrice)
+                  }
+                  color={item.isChecked ? "#4630EB" : undefined}
+                />
+              );
+            })}
+            <Text>{addonsPrice}</Text>
+          </AddOnsContainer>
 
-        <AddOnsContainer>
-          <SauceTitleWrapper>
-            <View
-              style={{
-                backgroundColor: "#EEEEEE",
-                paddingHorizontal: 5,
-                paddingVertical: 3,
-                borderRadius: 10,
-              }}
-            ></View>
-          </SauceTitleWrapper>
+          <Section />
 
-          {addons.map((item) => {
-            return (
-              <Check
-                key={item.id}
-                text={item.text}
-                price={item.price}
-                style={{ margin: 5 }}
-                value={item.isChecked}
-                onPress={() =>
-                  handlePress(item.id, item.price, addons, setAddonsPrice)
-                }
-                checked={item.isChecked}
-              />
-            );
-          })}
-          <Text>{addonsPrice}</Text>
-        </AddOnsContainer>
+          <FrequentContainer>
+            <SauceTitleWrapper>
+              <SauceTitle size={18}>Frequently brought together</SauceTitle>
+            </SauceTitleWrapper>
 
-        <Section />
+            {frequent.map((item) => {
+              return (
+                <Check
+                  key={item.id}
+                  text={item.text}
+                  price={item.price}
+                  subtitle={item.subTitle}
+                  onPress={() =>
+                    handleCheck(item.id, item.price, frequent, setFrequentPrice)
+                  }
+                  checked={item.isChecked}
+                />
+              );
+            })}
+            <Text>{frequentPrice}</Text>
+          </FrequentContainer>
 
-        <FrequentContainer>
-          <SauceTitleWrapper>
-            <SauceTitle size={18}>Frequently brought together</SauceTitle>
-          </SauceTitleWrapper>
+          <Section />
 
-          {frequent.map((item) => {
-            return (
-              <Check
-                key={item.id}
-                text={item.text}
-                price={item.price}
-                subtitle={item.subTitle}
-                onPress={() =>
-                  handlePress(item.id, item.price, frequent, setFrequentPrice)
-                }
-                checked={item.isChecked}
-              />
-            );
-          })}
-          <Text>{frequentPrice}</Text>
-        </FrequentContainer>
+          <CounterContainer>
+            <Counter />
+          </CounterContainer>
 
-        <Section />
+          <Section />
+          {/* <SubmitBtn title="Add to Basket" onPress={handleSubmit} /> */}
 
-        <CounterContainer>
-          <Counter />
-        </CounterContainer>
+          <AddBtn onPress={() => addedItems.current.open()}>
+            <AddBtnTxt>
+              Add {count} to basket • US${sum.toFixed(2)}
+            </AddBtnTxt>
 
-        <Section />
-
-        <AddBtn onPress={() => addedItems.current.open()}>
-          <AddBtnTxt>
-            Add {count} to basket • US${sum.toFixed(2)}
-          </AddBtnTxt>
-
-          <LineTxt>US$21.00</LineTxt>
-        </AddBtn>
+            <LineTxt>US$21.00</LineTxt>
+          </AddBtn>
+        </InnerContainer>
       </ScrollView>
       <Portal>
-        <BottomSheet
-          bottomSheetRef={addedItems}
-          modalHeight={700}
-          onPress={() => {
-            current.close();
-          }}
-        >
+        <BottomSheet bottomSheetRef={addedItems} modalHeight={700}>
+          {/* <SubmitBtn
+            title="go to delivery"
+            light
+            onPress={() => {
+              navigation.navigate(ROUTES.DELIVERY_DETAILS_SCREEN),
+                bottomSheetRef.current?.close();
+            }}
+          /> */}
+
           <TextWrapper>
             <RestTitle>Taco Bell(2255 Telegraph Avenue)</RestTitle>
             <SaveText>You're saving US$25</SaveText>
             <Section />
           </TextWrapper>
-          {/* <AddBtn
-            title="Go to checkout"
-            onPress={() => {
-              navigation.navigate(ROUTES.DELIVERY_DETAILS_SCREEN);
-            }}
-          /> */}
+
           {/* <GroupIcon /> */}
           <CtgrBtn
             title="Go to checkout"
@@ -520,6 +571,11 @@ export default function OrderDetails({ navigation, route }) {
           <Section />
         </BottomSheet>
       </Portal>
+      <AppSnackBar
+        text="You have successfully added item to basket"
+        visible={visible}
+        callback={setVisible}
+      />
     </Container>
   );
 }

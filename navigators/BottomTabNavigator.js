@@ -47,7 +47,11 @@ function BottomTabNavigator() {
       <Tab.Screen
         name={ROUTES.BROWSE_SCREEN}
         component={Browse}
-        options={{ title: "Browse" }}
+        options={{
+          title: "Browse",
+          headerShown: true,
+          headerBackVisible: true,
+        }}
       />
       <Tab.Screen
         name={ROUTES.GROCERY_SCREEN}

@@ -10,7 +10,7 @@ const Input = ({
   secured,
   ...other
 }) => {
-  const [shown, setShown] = useState(true);
+  const [shown, setShown] = useState(false);
   return (
     <View style={styles.container} {...other}>
       {icon && (

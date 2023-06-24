@@ -13,29 +13,44 @@ export const UserContextUpdate = createContext();
 //   return useContext(VisibilityUpdateContext);
 // };
 
+export const Shop = () => {
+  return useContext(UserContext);
+};
+
+export const Updateshop = () => {
+  return useContext(UserContextUpdate);
+};
+
+const testUrl = require("../assets/images/shopCartTestImage.png");
+
 export const User = () => {
   return useContext(UserContext);
 };
 
-export const UpdateUser = () => {
-  return useContext(UserContextUpdate);
-};
+// export const UpdateUser = () => {
+//   return useContext(UserContextUpdate);
+// };
 
 export const UserProvider = ({ children }) => {
-  const [user, setUser] = useState(0);
+  const [shopItems, setShopItems] = useState([]);
+
+  const updateShop = (item) => {
+    setShopItems([...shopItems, item]);
+  };
+  // const [user, setUser] = useState(0);
   // const [visible, setVisible] = useState(false);
 
   // const changeState = () => {
   //   setVisible((prev) => !prev);
   // };
 
-  const userLogeed = (user) => {
-    setUser(user);
-  };
+  // const userLogeed = (user) => {
+  //   setUser(user);
+  // };
 
   return (
-    <UserContext.Provider value={user}>
-      <UserContextUpdate.Provider value={userLogeed}>
+    <UserContext.Provider value={shopItems}>
+      <UserContextUpdate.Provider value={updateShop}>
         {/* <VisibilityContext.Provider value={visible}> */}
         {/* <VisibilityUpdateContext.Provider value={changeState}> */}
         {children}

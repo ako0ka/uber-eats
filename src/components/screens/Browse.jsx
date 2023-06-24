@@ -1,5 +1,5 @@
 import { ScrollView, Text, View } from "react-native";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { FontAwesome } from "@expo/vector-icons";
 
@@ -42,10 +42,10 @@ const SearchContainer = styled.View`
   width: 100%;
   margin-bottom: 27px;
 `;
-
 const SearchTitle = styled.Text`
   font-style: normal;
   font-weight: 400;
+  font-size: 14px;
   line-height: 20px;
   color: #6b6b6b;
   margin-bottom: 21px;
@@ -99,11 +99,11 @@ function Browse({ navigation }) {
                   return (
                     <IconTitle
                       key={idx}
-                      title={item.title}
+                      title={item}
                       icon={
                         <FontAwesome name="search" size={20} color="black" />
                       }
-                      onPress={() => console.log(item.title)}
+                      onPress={() => console.log(item)}
                     />
                   );
                 })}
@@ -117,24 +117,11 @@ function Browse({ navigation }) {
                     key={item.id}
                     title={item.title}
                     icon={<FontAwesome name="search" size={20} color="black" />}
-                    onPress={() =>
-                      navigation.navigate(item.routeName, { num: item.type })
-                    }
+                    onPress={() => console.log(item.title)}
                   />
                 );
               })}
             </SearchContainer>
-            {browse.map((item) => {
-              return (
-                <IconTitle
-                  key={item.id}
-                  title={item.title}
-                  onPress={() =>
-                    navigation.navigate(item.routeName, { num: item.type })
-                  }
-                />
-              );
-            })}
           </Wrapper>
         ) : (
           <Wrapper>
@@ -148,7 +135,9 @@ function Browse({ navigation }) {
                     key={item.id}
                     title={item.title}
                     imgUrl={item.imgUrl}
-                    onPress={() => console.log(item.title)}
+                    onPress={() =>
+                      navigation.navigate(item.routeName, { num: item.type })
+                    }
                   />
                 );
               })}
@@ -168,38 +157,6 @@ function Browse({ navigation }) {
             </InnerContainer>
           </Wrapper>
         )}
-        <Wrapper>
-          {user && <Text>{user.userName}</Text>}
-
-          <Title style={{ marginTop: 15 }}>Top Categories</Title>
-          <InnerContainer>
-            {offers.map((item) => {
-              return (
-                <BrowseCard
-                  key={item.id}
-                  title={item.title}
-                  imgUrl={item.imgUrl}
-                  onPress={() =>
-                    navigation.navigate(item.routeName, { num: item.type })
-                  }
-                />
-              );
-            })}
-          </InnerContainer>
-          <Title>All Categories</Title>
-          <InnerContainer>
-            {browse.map((item) => {
-              return (
-                <BrowseCard
-                  key={item.id}
-                  title={item.title}
-                  imgUrl={item.imgUrl}
-                  onPress={() => console.log(item.title)}
-                />
-              );
-            })}
-          </InnerContainer>
-        </Wrapper>
       </ScrollView>
     </Container>
   );

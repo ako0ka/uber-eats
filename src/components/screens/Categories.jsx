@@ -227,7 +227,9 @@ const Categories = ({ navigation, route }) => {
               <CtgrView>
                 <CtgrBtn
                   title="Featured"
-                  onPress={() => navigation.navigate("Featured")}
+                  onPress={() =>
+                    navigation.navigate(ROUTES.ITEM_DETAILS_SCREEN)
+                  }
                 />
                 <CtgrBtn title="Categories" black={true} />
                 <CtgrBtn

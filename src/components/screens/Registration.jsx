@@ -2,10 +2,12 @@ import { View, Text, ScrollView } from "react-native";
 import React, { useState } from "react";
 import styled from "styled-components";
 
+import * as ROUTES from "../constants/routes";
+
 import Screen from "../atoms/Screen";
 import Input from "../atoms/TextInput";
 import Button from "../atoms/Button";
-import { storeData } from "../../helpers/manageStorage";
+import { getData, storeData } from "../../helpers/manageStorage";
 import AppSnackBar from "../moleculs/SnackBar";
 
 const Container = styled(Screen)`
@@ -41,36 +43,29 @@ const Registration = ({ navigation }) => {
 
   const handleSubmit = async () => {
     if (
-      form.name &&
-      form.email &&
-      form.password &&
-      form.confirmPassword === ""
+      (form.name && form.email && form.password && form.confirmPassword) === ""
     ) {
       setError((prev) => !prev);
       return;
     }
-    setSuccess((prev) => !prev);
-    storeData(form);
+    storeData("user", form);
     navigation.navigate(ROUTES.SIGN_IN_SCREEN);
+    setSuccess((prev) => !prev);
   };
   return (
     <Container>
       <ScrollView contentContainerStyle={{ height: "100%" }}>
-        {/* <AppSnackBar
+        <AppSnackBar
           visible={success}
           text="You have been Registered"
-          top={0}
-          position="top"
           callback={setSuccess}
         />
         <AppSnackBar
           visible={error}
           text="Error while Registering"
-          top={0}
-          position="top"
           callback={setError}
           isError
-        /> */}
+        />
 
         <Text style={{ width: "100%", textAlign: "center", fontSize: 22 }}>
           Registration

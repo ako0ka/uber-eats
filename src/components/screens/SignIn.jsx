@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Pressable, View } from "react-native";
 import styled from "styled-components/native";
 import Animated, { FadeIn } from "react-native-reanimated";
@@ -10,7 +10,9 @@ import Button from "../atoms/Button";
 import Screen from "../atoms/Screen";
 import LoginScreenImage from "../../../assets/images/LoginScreenImage";
 import Input from "../atoms/TextInput";
-import { login } from "../../helpers/login";
+import { getData } from "../../helpers/manageStorage";
+import AppSnackBar from "../moleculs/SnackBar";
+import CtgrBtn from "../atoms/CtgrBtn";
 
 const Container = styled(Screen)`
   flex: 1;
@@ -37,10 +39,10 @@ const ForgotPasswordContainer = styled.View`
   display: flex;
   flex-direction: row;
 `;
-const QuestionText = styled.Text`
-  color: #ffffff;
-  margin-left: 5px;
-`;
+// const QuestionText = styled.Text`
+//   color: #ffffff;
+//   margin-left: 5px;
+// `;
 
 const SignUpButton = styled.Text`
   color: #06c167;
@@ -71,7 +73,7 @@ const Password = styled(Input)`
   padding-left: 10px;
 `;
 
-const SignInBtn = styled(Button)`
+const SignInBtn = styled(CtgrBtn)`
   margin-bottom: 23px;
   margin-top: 5px;
 `;
@@ -91,24 +93,38 @@ const SignIn = ({ navigation }) => {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
 
-  const user = User();
-
-  const updateUser = UpdateUser();
+  const [error, setError] = useState(false);
 
   const userLogin = async () => {
-    const res = await login();
+    const res = await getData("user");
     console.log(res);
-    if (res) {
-      updateUser(res);
-      navigation.navigate(ROUTES.DRAWER_NAVIGATOR);
-      alert(user.userName);
+    if (res && res.email === userName && res.password === password) {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: ROUTES.DRAWER_NAVIGATOR }],
+      });
     } else {
-      alert("Wrong Credentials");
+      setError((prev) => !prev);
     }
   };
+  const getUserData = async () => {
+    const res = await getData("user");
+    if (res) {
+      navigation.navigate(ROUTES.DRAWER_NAVIGATOR);
+    }
+  };
+  useEffect(() => {
+    getUserData();
+  }, []);
 
   return (
     <Container>
+      <AppSnackBar
+        text="Wrong Credentials"
+        visible={error}
+        callback={setError}
+        isError
+      />
       <InnterContainer>
         <Desc style={{ marginTop: 100, fontSize: 46, marginBottom: -10 }}>
           Uber
@@ -124,7 +140,7 @@ const SignIn = ({ navigation }) => {
         <UserName onChangeText={setUserName} value={userName} />
 
         <Label style={{ marginTop: 5 }}>Password</Label>
-        <Password onChange={(e) => setPassword(e)} value={password} />
+        <Password onChangeText={setPassword} value={password} secured />
         <SignInBtn title="Sign In" onPress={userLogin} />
 
         <ForgotPasswordContainer style={{ marginBottom: 20 }}>

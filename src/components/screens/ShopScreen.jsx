@@ -1,6 +1,10 @@
 import { Image, Text, View } from "react-native";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
+import { RolePropType } from "deprecated-react-native-prop-types/DeprecatedViewAccessibility";
+
+import AppSnackBar from "../moleculs/SnackBar";
+import { Shop } from "../../userProvider";
 import Screen from "../atoms/Screen";
 import CtgrBtn from "../atoms/CtgrBtn";
 import ShopCard from "../organizms/ShopCard";
@@ -37,6 +41,7 @@ const Title = styled.Text`
 `;
 
 const SubTitle = styled.Text`
+  text-align: center;
   padding: 0 15px;
   font-style: normal;
   font-weight: 400;
@@ -96,7 +101,11 @@ const fakeData = [
 
 function ShopScreen({ navigation }) {
   const [data, setData] = useState(fakeData);
-  // const showStartShoppingSection = !data || data.length === 0;
+  let shopItems = Shop();
+
+  setTimeout(() => {
+    setData(shopItems);
+  }, 1500);
 
   return (
     <Container>
@@ -105,45 +114,36 @@ function ShopScreen({ navigation }) {
         title="Orders"
         iconLeft={imageUrl}
         light
-        onPress={() => setData(!data)}
+        // onPress={() => setData(!data)}
       />
 
-      {data ? (
-        <SecondContainer>
-          {data.map((item, index) => {
-            return (
-              <ShopCard
-                key={index}
-                title="Taco Bell"
-                subTitle="1 item / US 43.00 $"
-                des="some random description text"
-                imageUrl={testUrl}
-                onPress={() => console.log("Hello")}
-              />
-            );
-          })}
-        </SecondContainer>
-      ) : (
+      {data.length === 0 ? (
         <InnerContainer>
           <Image source={require("../../../assets/images/shopcart.png")} />
           <Title>Add items to start a basket</Title>
+          <SubTitle>items in cart {data.length}</SubTitle>
           <SubTitle>
             Once you add items from a restuarant or store, your basket will
             appear here.
           </SubTitle>
           <StartBtn title="Start Shopping" />
         </InnerContainer>
+      ) : (
+        <SecondContainer>
+          {data.map((item, index) => {
+            return (
+              <ShopCard
+                key={index}
+                title={item.title}
+                subTitle={item.subTitle}
+                des={item.des}
+                imageUrl={testUrl}
+                onPress={() => navigation.navigate(ROUTES.ORDER_DETAILS, item)}
+              />
+            );
+          })}
+        </SecondContainer>
       )}
-
-      {/* <InnerContainer>
-        <ShopCard
-          title="Taco Bell"
-          subTitle="1 item / US 43.00 $"
-          des="some random description text"
-          imageUrl={testUrl}
-          onPress={() => console.log("Hello")}
-        />
-      </InnerContainer> */}
     </Container>
   );
 }

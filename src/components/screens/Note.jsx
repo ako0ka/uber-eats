@@ -8,6 +8,8 @@ import * as ROUTES from "../constants/routes";
 
 import Screen from "../atoms/Screen";
 import Text from "../atoms/Text";
+import CtgrBtn from "../atoms/CtgrBtn";
+import Button from "../atoms/Button";
 
 const Container = styled(Screen)``;
 
@@ -23,20 +25,20 @@ const Wrapper = styled.View`
   justify-content: space-between;
 `;
 
-const Title = styled.View`
+const Title = styled.Text`
   color: #6b6b6b;
   font-size: 16px;
   width: 350px;
   margin: 22px 0;
 `;
 
-const Btn = styled.Pressable`
-  background-color: #000000;
+const Btn = styled(Button)`
   padding: 15px;
   align-items: center;
   justify-content: center;
   display: flex;
   margin-top: 16px;
+  margin-bottom: 200px;
 `;
 
 const Input = styled(TextInput)`
@@ -58,7 +60,7 @@ const Note = ({ navigation }) => {
           </Title>
         </TextContainer>
         <Btn onPress={() => navigation.goBack(ROUTES.DELIVERED_SCREEN)}>
-          <Text style={{ color: "#ffffff" }}>Save</Text>
+          <Title style={{ color: "#ffffff" }}>Save</Title>
         </Btn>
       </Wrapper>
     </Container>

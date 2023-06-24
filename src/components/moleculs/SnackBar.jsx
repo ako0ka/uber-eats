@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import styled from "styled-components";
+import styled from "styled-components/native";
 import SnackBar from "react-native-snackbar-component";
 import { LogBox } from "react-native";
 import Constants from "expo-constants";
@@ -33,9 +33,9 @@ const InfoText = styled(Text)`
 `;
 
 const AppSnackBar = ({ text, isError, visible = false, callback }) => {
-  // useEffect(() => {
-  //   LogBox.ignoreLogs(["Animated: `useNativeDriver`"]);
-  // }, []);
+  useEffect(() => {
+    LogBox.ignoreLogs(["Animated: `useNativeDriver`"]);
+  }, []);
 
   useEffect(() => {
     if (visible) {
@@ -48,7 +48,7 @@ const AppSnackBar = ({ text, isError, visible = false, callback }) => {
   const Message = () => {
     return (
       <SnackContainer>
-        {isError ? <Error /> : <Success />}
+        {/* {isError ? <Error /> : <Success />} */}
         <InfoContainer>
           <Title>{isError ? "Error" : "Success"}</Title>
           <InfoText numberoflines={2}>{text}</InfoText>

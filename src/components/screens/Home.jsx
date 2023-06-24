@@ -1,6 +1,7 @@
 import { Text, View, StyleSheet, ScrollView, FlatList } from "react-native";
 import { Portal } from "react-native-portalize";
 import React, { useEffect, useState, useRef } from "react";
+import { AntDesign } from "@expo/vector-icons";
 
 import MainCard from "../organizms/MainCard";
 import styled from "styled-components/native";
@@ -10,6 +11,7 @@ import * as ROUTES from "../../components/constants/routes";
 import BottomSheet from "../atoms/BottomSheet";
 import Button from "../atoms/Button";
 import CategoryCard from "../atoms/CategoryCard";
+import { Shop } from "../../userProvider";
 
 const ctgrListItems = [
   {
@@ -321,7 +323,7 @@ const Container = styled(Screen)`
   flex-grow: 1;
   align-items: center;
   justify-content: center;
-  padding: 50px 20px 0 20px;
+  padding: 30px 20px 0 20px;
   background-color: "#FFFFFF";
 `;
 
@@ -366,10 +368,10 @@ const Title = styled.Text`
 
 function Home({ navigation }) {
   const [ctgr, setCtgr] = useState(0);
+  const [data, setData] = useState([]);
 
   const categorySheetRef = useRef();
-
-  const [data, setData] = useState([]);
+  let shopItems = Shop();
 
   const fetchData = () => {
     if (ctgr === 0) {
@@ -420,6 +422,8 @@ function Home({ navigation }) {
                 />
               );
             })}
+            <Location>{shopItems.length}</Location>
+            <AntDesign name="shoppingcart" size={30} color="black" />
           </SortTopContainer>
 
           <SortBottomContainer>
@@ -500,10 +504,13 @@ function Home({ navigation }) {
           <View
             style={{
               display: "flex",
+              flex: 1,
               flexDirection: "row",
               flexWrap: "wrap",
-              justifyContent: "center",
-              alignItems: "center",
+              justifyContent: "space-between",
+              height: 700,
+              paddingTop: 30,
+              paddingHorizontal: 15,
             }}
           >
             {ctgrListItems.map((item) => {
@@ -513,6 +520,7 @@ function Home({ navigation }) {
                   imgUrl={item.imgUrl}
                   onPress={() => console.log(item.title)}
                   key={item.id}
+                  withMarginBottom
                 />
               );
             })}

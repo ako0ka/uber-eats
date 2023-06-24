@@ -1,5 +1,5 @@
 import { ScrollView, Image, Pressable, Text } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { Octicons } from "@expo/vector-icons";
 
@@ -88,6 +88,7 @@ const groceryShops = [
 ];
 
 const Grocery = ({ navigation, route }) => {
+  const [grocery, setGrocery] = useState(groceryShops);
   return (
     <Container>
       <ScrollView>

@@ -78,7 +78,12 @@ const Delivered = ({ navigation }) => {
           <Image source={require("../../../assets/images/deliverBag.png")} />
         </View>
         <BlackBtn>
-          <Title color={{ color: "#eeeeee" }}>Close</Title>
+          <Title
+            color={{ color: "#eeeeee" }}
+            onPress={() => navigation.navigate(ROUTES.HOME_SCREEN)}
+          >
+            Close
+          </Title>
         </BlackBtn>
       </View>
     </Container>

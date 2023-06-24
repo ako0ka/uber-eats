@@ -1,5 +1,5 @@
 import { ScrollView, Text, View } from "react-native";
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components/native";
 import { EvilIcons } from "@expo/vector-icons";
 
@@ -9,8 +9,16 @@ import * as ROUTES from "../../components/constants/routes";
 import Screen from "../atoms/Screen";
 import SettingsCard from "../organizms/SettingsCard";
 import { User } from "../../userProvider";
+import { getData, removeItemValue } from "../../helpers/manageStorage";
+import AppSnackBar from "../moleculs/SnackBar";
 
 const Container = styled(Screen)`
+  display: flex;
+  justify-content: space-around;
+`;
+
+const InnerContainer = styled.View`
+  padding: 0 22px;
   display: flex;
   justify-content: space-around;
 `;
@@ -82,30 +90,59 @@ function Settings({ navigation }) {
     navigation.navigate(str, { num: 2 });
   };
 
-  const user = User();
+  const [user, setUser] = useState();
+
+  const [logOut, setLogOut] = useState(false);
+
+  const getUserData = async () => {
+    const res = await getData("user");
+    if (res) {
+      setUser(res);
+      return;
+    }
+  };
+
+  const handleLogOut = async () => {
+    const res = await removeItemValue("user");
+    if (res) {
+      setLogOut(true);
+      navigation.navigate(ROUTES.SIGN_IN_SCREEN);
+    }
+  };
+
+  useEffect(() => {
+    getUserData();
+  }, []);
+
+  // const user = User();
   return (
     <Container>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <UserCard>
-          <UserImage
-            source={
-              user
-                ? { uri: user.userImage }
-                : require("../../../assets/images/defaultImage.png")
-            }
+        <InnerContainer>
+          <AppSnackBar
+            text="You Successfully logged out"
+            visible={logOut}
+            callback={setLogOut}
           />
-          <UserName>{user ? user.userName : "John Doe"}</UserName>
-        </UserCard>
-        {cards.map((card, idx) => {
-          return (
-            <SettingsCard
-              key={idx}
-              title={card.title}
-              icon={card.icon}
-              onPress={() => handlePress(card.value)}
+          <UserCard>
+            <UserImage
+              source={require("../../../assets/images/defaultImage.png")}
             />
-          );
-        })}
+            <UserName>{user ? user.userName : "John Doe"}</UserName>
+          </UserCard>
+          {cards.map((card, idx) => {
+            return (
+              <SettingsCard
+                key={idx}
+                title={card.title}
+                icon={card.icon}
+                onPress={() => handlePress(card.value)}
+              />
+            );
+          })}
+
+          <Btn title="Log Out" onPress={handleLogOut} />
+        </InnerContainer>
       </ScrollView>
     </Container>
   );

@@ -83,6 +83,7 @@ const Note = styled.Pressable`
   align-items: center;
   flex-direction: row;
   gap: 10px;
+  /* margin-bottom: 50px; */
 `;
 
 const MinusPlus = styled.View`
@@ -91,6 +92,7 @@ const MinusPlus = styled.View`
   border: 3px solid lightgray;
   gap: 40px;
   padding: 5px 10px;
+  margin-bottom: 50px;
 `;
 
 const nutritionFacts = [
@@ -163,7 +165,7 @@ const nutritionFacts = [
 ];
 
 const ItemDetails = ({ navigation, route }) => {
-  const { item } = route.params;
+  const item = route.params;
 
   return (
     <Container>
@@ -184,7 +186,7 @@ const ItemDetails = ({ navigation, route }) => {
           </Header>
 
           <ImageView>
-            <ImageSize source={item.url} style={{ width: 200 }} />
+            <Image style={{ width: 200 }} />
           </ImageView>
 
           <View style={{ gap: 10, marginTop: 20 }}>
@@ -193,7 +195,7 @@ const ItemDetails = ({ navigation, route }) => {
             <InformView>
               <Text>Price</Text>
 
-              <Text>${item.price}/pc</Text>
+              <Text>$/pc</Text>
             </InformView>
 
             <InformView>
@@ -205,15 +207,13 @@ const ItemDetails = ({ navigation, route }) => {
             <InformView>
               <Text>Package</Text>
 
-              <Text>{item.subTitle}</Text>
+              <Text></Text>
             </InformView>
 
             <Text style={{ marginVertical: 20 }}>Nutrition facts</Text>
 
             <NutritionFacts>
-              <Text style={{ marginVertical: 10 }}>
-                Serving Size about {item.subTitle}
-              </Text>
+              <Text style={{ marginVertical: 10 }}>Serving Size about</Text>
 
               <InformView>
                 <Text>Calories 110</Text>
@@ -265,7 +265,7 @@ const ItemDetails = ({ navigation, route }) => {
                 <Text>1pc</Text>
               </Add>
 
-              <Note onPress={() => navigation.navigate("Note")}>
+              <Note onPress={() => navigation.navigate(ROUTES.NOTE_SCREEN)}>
                 <Text>Leave a note</Text>
               </Note>
             </BottomView>

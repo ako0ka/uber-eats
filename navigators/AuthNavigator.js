@@ -110,7 +110,7 @@ const AuthNavigator = ({ navigation }) => {
             component={Grocery}
             options={{
               title: "Grocery",
-              headerShown: true,
+              headerShown: false,
               headerBackVisible: true,
             }}
           />
@@ -159,7 +159,7 @@ const AuthNavigator = ({ navigation }) => {
               headerBackVisible: true,
             }}
           />
-          {/* <Stack.Screen
+          <Stack.Screen
             name={ROUTES.NOTE_SCREEN}
             component={Note}
             options={{
@@ -167,7 +167,7 @@ const AuthNavigator = ({ navigation }) => {
               headerShown: true,
               headerBackVisible: true,
             }}
-          /> */}
+          />
           {/* <Stack.Screen
             name={ROUTES.TRACK_ORDER_MAP}
             component={TrackOrderMap}
